@@ -39,3 +39,5 @@ next-env.d.ts
 dev.key
 dev.cert
 server-local.js
+server-local.mjs
+.env.local
