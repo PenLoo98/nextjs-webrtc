@@ -96,11 +96,12 @@ const Home: React.FC = () => {
     if (!pc) return;
     console.log('Creating call...');
 
+    // 여기서 callDoc을 만들고 offerCandidates, answerCandidates를 만들어서 db에 저장
     const callDoc = doc(collection(firestore, 'calls'));
     const offerCandidates = collection(callDoc, 'offerCandidates');
     const answerCandidates = collection(callDoc, 'answerCandidates');
 
-    setCallId(callDoc.id);
+    setCallId(callDoc.id); // firebase에 만들어진 문서의 id를 가져옴
 
     // Get candidates for caller, save to db
     pc.onicecandidate = async (event) => {
@@ -117,10 +118,11 @@ const Home: React.FC = () => {
       sdp: offerDescription.sdp,
       type: offerDescription.type,
     };
-
+    console.log(offer);
     await setDoc(callDoc, { offer });
 
     // Listen for remote answer
+    // callDoc에 데이터 변화가 생기면 실행되고 answer를 가져와서 peer connection에 추가
     onSnapshot(callDoc, (snapshot) => {
       const data = snapshot.data();
       if (data && !pc.currentRemoteDescription && data.answer) {
@@ -139,13 +141,14 @@ const Home: React.FC = () => {
       });
     });
 
+    // 버튼 상태 업데이트
     if (hangupButton.current) hangupButton.current.disabled = false;
   };
 
   const answerCall = async () => {
     if (!pc) return;
     console.log('Answering call...');
-
+    // 여기서 callDoc을 가져오고 offerCandidates, answerCandidates를 가져와서 db에 저장
     const callDoc = doc(firestore, 'calls', callId);
     const answerCandidates = collection(callDoc, 'answerCandidates');
     const offerCandidates = collection(callDoc, 'offerCandidates');
@@ -169,6 +172,7 @@ const Home: React.FC = () => {
         type: answerDescription.type,
         sdp: answerDescription.sdp,
       };
+      console.log(answer);
 
       await updateDoc(callDoc, { answer });
 
